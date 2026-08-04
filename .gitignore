@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+
+# Generated per-part output. Renders and meshes rebuild from model.py.
+# history.jsonl / history.md are NOT here — they are the record, and tracked.
+examples/*/build/
+
+# The private collection. Its own git repo lives inside; see PRIVACY.md.
+# Nothing under here is ever seen by this repo.
+/parts/
