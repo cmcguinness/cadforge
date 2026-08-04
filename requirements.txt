@@ -3,4 +3,4 @@ ocp-vscode==3.4.0
 bd_warehouse==0.2.0
 watchdog==6.0.0
 numpy==2.5.1
-pillow==12.2.0
+pillow==12.3.0
