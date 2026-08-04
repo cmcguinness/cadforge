@@ -11,3 +11,7 @@ examples/*/build/
 # The private collection. Its own git repo lives inside; see PRIVACY.md.
 # Nothing under here is ever seen by this repo.
 /parts/
+
+# Local machine config: gh account, commit identity, paths. Not shareable.
+.envrc
+.claude-profile
