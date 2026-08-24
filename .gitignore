@@ -1,0 +1,34 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Your machine and material — describes your bench, not the project.
+# `cad setup` writes it; printer.toml.example documents the format.
+printer.toml
+.idea/
+
+# Generated per-part output. Renders and meshes rebuild from model.py.
+# history.jsonl / history.md are NOT here — they are the record, and tracked.
+examples/*/build/
+# accepted/ is NOT ignored: it is the frozen deliverable — the mesh that was
+# printed, plus the exact generator that made it. model.py is disposable and
+# will be rewritten, so this is the only path back to a validated object.
+
+# The private collection. Its own git repo lives inside; see PRIVACY.md.
+# Nothing under here is ever seen by this repo.
+/parts/
+
+# Projects and assemblies at the repo root are PUBLIC — the root tree is
+# committed. Private ones belong under /parts/, which is ignored above. This
+# comment exists because a private project's shared.py was once written to the
+# root assemblies/ and would have been published by a bare `git add .`.
+
+# Local machine config: gh account, commit identity, paths. Not shareable.
+.envrc
+.claude-profile
+
+# Video of a finished part. Footage and NLE scratch data are the deliverable of
+# a different craft than the part, and run to hundreds of megabytes; `parts/`
+# ignores the same. Nothing here has ever needed one published.
+videos/

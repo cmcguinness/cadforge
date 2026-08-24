@@ -1,0 +1,13 @@
+{
+  "part": "witch_lantern",
+  "digest": "9370ca92",
+  "params": {
+    "n_heads": 5,
+    "head_h": 0.0,
+    "min_rib": 3.0,
+    "open_frac_min": 0.04,
+    "open_frac_max": 0.28,
+    "chamfer_top": 0.8,
+    "chamfer_bottom": 0.6
+  }
+}

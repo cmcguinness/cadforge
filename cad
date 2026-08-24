@@ -1,0 +1,3 @@
+#!/bin/sh
+# Entry point. Always uses the project venv — a bare `python` lacks OCP.
+exec "$(dirname "$0")/.venv/bin/python" -m cadkit "$@"

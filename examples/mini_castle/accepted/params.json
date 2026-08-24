@@ -1,0 +1,9 @@
+{
+  "part": "mini_castle",
+  "digest": "74078818",
+  "params": {
+    "scale": 0.5,
+    "floors": false,
+    "slack": 1.0
+  }
+}

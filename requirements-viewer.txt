@@ -1,0 +1,27 @@
+# Optional: the ocp_vscode interactive 3D viewer.
+#
+# Not needed to design, build, check, render or export anything — `cad build`
+# writes a contact sheet and review runs off that. This is for when you want to
+# grab a part and spin it.
+#
+# Install it AFTER requirements.txt, and then put pillow back:
+#
+#     pip install -r requirements-viewer.txt
+#     pip install --no-deps --upgrade 'pillow==12.3.0'
+#
+# The second line is not optional and not superstition. ocp_vscode depends on
+# threejs-materials, which caps pillow<12.3.0 — below the version that patches
+# 13 advisories — and no released threejs-materials lifts the cap. Installing
+# the viewer therefore silently DOWNGRADES pillow back to the vulnerable 12.2.0.
+# `--no-deps` reinstalls the patched one over the top, leaving one dependency
+# constraint knowingly violated.
+#
+# Verified on this combination: build123d, ocp_vscode and the renderer all
+# import, and a full `cad build` renders correctly. What is untested is
+# ocp_vscode's own image handling against pillow 12.3 — if the viewer ever
+# misbehaves, this is the first thing to suspect.
+#
+# The clean fix is upstream. If threejs-materials ever ships a release allowing
+# pillow>=12.3, fold this file back into requirements.txt and delete it.
+
+ocp-vscode==3.4.0

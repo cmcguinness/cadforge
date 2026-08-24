@@ -1,0 +1,25 @@
+build123d==0.11.1
+bd_warehouse==0.2.0
+watchdog==6.0.0
+numpy==2.5.1
+
+# scipy: connected-component labelling on outline masks and heightfields, so a
+# part in two pieces is caught before it prints as two loose objects.
+scipy==1.18.0
+
+# numpy-stl: writes binary STL directly from a vertex/face array. Needed by the
+# mesh-native parts — a lithophane is a ~2M-triangle heightfield, which is not
+# something OCC can be asked to build, so those parts bypass build123d
+# entirely and hand a mesh straight to the slicer. Imports as `stl`.
+numpy-stl==4.0.0
+
+# 12.3.0 patches 13 advisories (10 high), all in the image decoders. This repo
+# reads supplied artwork with them, so it is exposure worth closing.
+#
+# It is also why the optional viewer moved to requirements-viewer.txt rather
+# than sitting here: ocp_vscode depends on threejs-materials, which caps
+# pillow<12.3.0, and NO released version of it lifts the cap. Pinning both in
+# one file makes `pip install -r requirements.txt` fail outright with
+# ResolutionImpossible — a worse outcome than the advisories. Read that file
+# before installing the viewer.
+pillow==12.3.0

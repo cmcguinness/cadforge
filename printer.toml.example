@@ -1,0 +1,30 @@
+# cadforge — EXAMPLE. Run `./cad setup` to write your own printer.toml.
+#
+# cadforge — your machine and material.
+#
+# Git-ignored: this describes your bench, not the project. Written by
+# `cad setup`; edit freely.
+#
+# Every value below comes from a named profile in cadkit/printers.py. Any key
+# you set here overrides the profile, so a stock machine with a different
+# nozzle is one extra line.
+#
+# These are NOMINAL — manufacturer figures, not measurements. This repo is
+# fussy about that distinction and it applies to itself. Measure your own bed
+# before trusting a part that lands near its edge.
+
+[printer]
+profile = "a1mini"          # Bambu Lab A1 mini
+# bed_x  = 180
+# bed_y  = 180
+# bed_z  = 180
+# nozzle = 0.4
+# layer_h = 0.2
+# bed_margin = 5.0       # unusable border around the plate
+# max_overhang_deg = 50.0  # softest value here — set it from a test tower
+
+[material]
+profile = "pla"          # PLA
+# density = 1.24            # g/cm3, for the mass estimate
+# clearance_snug = 0.2
+# clearance_free = 0.4

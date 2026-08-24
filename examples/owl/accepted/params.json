@@ -1,0 +1,23 @@
+{
+  "part": "owl",
+  "digest": "897cfde5",
+  "params": {
+    "owl_h": 140.0,
+    "plate_t": 3.2,
+    "shelf_d": 44.0,
+    "shelf_t": 2.4,
+    "lip_h": 3.0,
+    "brace_w": 1.6,
+    "brace_drop": 0.42,
+    "branch_d": 24.0,
+    "base_trim": 0.5,
+    "foot_w": 9.0,
+    "foot_h": 4.0,
+    "foot_margin": 6.0,
+    "slot_front": 0.45,
+    "slot_clear": 0.35,
+    "tab_h": 8.0,
+    "tip_margin": 10.0,
+    "beak": true
+  }
+}

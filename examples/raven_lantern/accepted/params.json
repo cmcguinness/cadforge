@@ -1,0 +1,24 @@
+{
+  "part": "raven_lantern",
+  "digest": "eb311725",
+  "params": {
+    "layout": "ring",
+    "n_ravens": 6,
+    "raven_h": 14.0,
+    "raven_h_front": 18.0,
+    "feet": "full",
+    "toe_w_nozzles": 1.0,
+    "text": "",
+    "font": "Arial Black",
+    "font_size": 5.5,
+    "letter_gap": 0.35,
+    "bridge_w": 0.5,
+    "web_t": 0.8,
+    "band_gap": 1.6,
+    "min_rib": 2.0,
+    "open_frac_min": 0.04,
+    "open_frac_max": 0.28,
+    "chamfer_top": 0.8,
+    "chamfer_bottom": 0.6
+  }
+}

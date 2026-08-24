@@ -1,0 +1,31 @@
+{
+  "part": "pumpkin_lantern",
+  "digest": "a328657f",
+  "params": {
+    "height": 66.0,
+    "r_equator": 35.0,
+    "r_bottom": 21.0,
+    "z_equator": 27.0,
+    "r_stem": 3.4,
+    "stem_h": 6.0,
+    "wall": 1.1,
+    "n_lobes": 10,
+    "lobe_amp": 1.3,
+    "floor_t": 2.0,
+    "centring_clear": 0.9,
+    "floor_bite": 0.4,
+    "buttress": 0.0,
+    "face_bottom": 17.5,
+    "mouth_w": 36.0,
+    "mouth_h": 11.0,
+    "n_teeth": 4,
+    "tooth_row_h": 7.2,
+    "tooth_land": 1.4,
+    "gap_mouth": 6.0,
+    "gap_nose": 1.5,
+    "nose_w": 9.3,
+    "nose_h": 6.7,
+    "eye_w": 14.6,
+    "eye_h": 8.0
+  }
+}
