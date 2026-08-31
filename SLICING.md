@@ -125,6 +125,47 @@ Alongside it, for the same class of part:
 - **Bottom shell layers 3 → 5**, so a chamber ceiling has solid material to resist the peel when supports come away. Check the slab thickness first — `castle`'s second floor is 2.4 mm, twelve layers, so 5 bottom + 3 top leaves four layers of infill and the slab is effectively solid.
 - **Leave top Z distance at one layer** unless removal has actually proved difficult. A bigger gap releases more easily but sags more, and on a wide ceiling sag can curl into the nozzle. Change it when you have the problem.
 
+### Then the feet let go — and the fix for that has a bill attached
+
+Moving supports onto the chamber floors solved the collapse and created the next failure. A support that stands on the plate stands on glass; one that stands on a chamber floor stands on **a 2.4 mm PLA slab spanning a cavity**, which flexes under the nozzle. A later `castle` print was aborted when supports starting from the *second floor* came loose at their feet.
+
+| supports stand on | free column | foot sits on |
+|---|---|---|
+| the build plate | 48 / **88** / 122 mm — topples | glass |
+| the chamber floor it holds up | 45 / 36 / 32 mm | **a springy 2.4 mm slab** |
+
+There is no third option, so the answer is to keep the short columns and fix the foot. Three settings do that, and **they are not redundant — they are a pair plus a bonding fix, and maxing all of them is how you get the failure after this one**:
+
+- **`Bottom Z distance` 0.2 → 0** decides *whether* the foot welds to the slab. At the stock 0.2 every support standing on model material begins one full layer of air above it and holds on by squish alone. This is the one that matters.
+- **`Branch diameter angle` 5° → 8–12°** decides *how much area* welds. Its tooltip is a description of the problem: branches "gradually become thicker towards the bottom… can increase stability". **It compounds over the column's whole length**, which is what catches people out — at 12° on a 36 mm column a 4 mm tip becomes a **19 mm** foot, five times the original footprint area.
+- **`Independent support layer height` → OFF** is a *candidate*, not part of the working recipe. On by default; it lets support layers sit at Z values that do not line up with the object's, so the first layer landing on the slab can be a sliver even with the gap at zero. **It was never actually applied** — the `.3mf` of the print that worked has it still on — so it is untested here and the other two settings were sufficient without it.
+
+**`Branch diameter` barely moves the foot — and doubles the ceiling contact.** Over a 36 mm column the taper dominates the foot completely: 2 → 4 mm moves it by 2 mm where the angle moves it by 13. But the tooltip is precise about what the number actually is — "the initial diameter of support **nodes**" — and that is the *tip*, the end touching the ceiling. So raising it buys nothing at the bottom and doubles the weld at the top. **Leave it at 2**, or at the 3 Bambu's own `support_recommended_params.json` asks for.
+
+#### The bill: 0 gap × large feet = demolition
+
+Run at `Bottom Z distance` 0 **and** 12°, `castle` printed perfectly and the supports had to be destroyed to get them out. That is the trade stated plainly:
+
+| | supports stay put | supports come out |
+|---|---|---|
+| gap 0.2, small feet | ✗ came loose mid-print | ✓ |
+| gap 0, 19 mm feet | ✓ printed clean | ✗ demolition |
+
+**Pick one of the two to max, not both.** Zero gap is the more valuable of the pair because it is what actually stops the foot letting go, so keep it and take the angle back to **8°** — still roughly double the original foot area, with far less of it fused. Reserve 12° for a support that has actually failed at 8.
+
+**The tops need dialling back too, and `Branch diameter` is why.** Every top-end setting was left at stock for the print that would not release — top gap 0.2, two interface layers at 0.5 spacing — so nothing at that end was changed. What changed was the branch *tip*: 2 → 4 mm doubled the stub welded to each ceiling. The setting that does nothing useful at the bottom is the one doing the damage at the top.
+
+**Reach for `Top interface spacing` before `Top Z distance`.** Both ease removal and only one of them is free:
+
+| lever | what it costs |
+|---|---|
+| `Top interface spacing` 0.5 → **0.8** | fewer interface lines welded to the ceiling. Geometry unchanged, so **no extra sag** |
+| `Top Z distance` 0.2 → more | a bigger gap the ceiling sags across — and on a wide chamber ceiling sag can curl into the nozzle |
+
+So the starting point for the next `castle`: **branch diameter angle 12° → 8°** for the feet, **branch diameter 4 → 2** for the ceilings. One change at each end, both of them reversions rather than new territory, and neither risks a fresh failure mode. Hold `Top interface spacing` at 0.5 in reserve — reach for it only if the ceilings are still stubborn once the tips are back to normal size.
+
+The scars land on chamber floors, which nobody sees and which get paper laid over them anyway, so **removal damage is not the cost being weighed here — removal *effort* is**, and on an enclosed chamber reachable only through the open back that effort is the real limit. Check the sliced preview for feet that have **merged into a continuous mass**: separate fat feet are fine, a fused slab inside a chamber is not.
+
 **The general lesson**: when a print fails, ask what the slicer was *forbidden* to do before you change geometry. The model was never at fault here.
 
 ## The .3mf is a deliverable — keep it in `accepted/`
