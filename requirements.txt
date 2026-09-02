@@ -23,3 +23,12 @@ numpy-stl==4.0.0
 # ResolutionImpossible — a worse outcome than the advisories. Read that file
 # before installing the viewer.
 pillow==12.3.0
+
+# reportlab: the paper-diffuser cutting templates are printed and cut out, so
+# they have to come off the printer at true scale. SVG through a browser gets
+# fit-to-page silently; a PDF with a real page size does not. Only
+# parts/castle/paper_templates.py uses it.
+#
+# It depends on pillow>=9, which the 12.3.0 pin above already satisfies —
+# verified after install that pillow did not move.
+reportlab==5.0.1

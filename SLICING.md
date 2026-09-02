@@ -64,11 +64,17 @@ Applies to any pierced wall, not only to lanterns. Both of these were diagnosed 
 
 `castle_base` is 158 × 159 mm and its underside is a **single flat 251 cm² face**. That is a different kind of first layer from anything else here — every other part is mostly perimeter with a bit of infill, and this one is a slab. Two consequences, both learned by aborting a print.
 
-- **Tearing on a slab first layer means ADHESION, not squish.** The lines split and the nozzle drags through what it just laid, which looks exactly like a nozzle set too low — and reading it that way sends you to Z-offset and flow ratio, which is the wrong end of the machine. What is actually happening is that unstuck line gets picked up on the next pass. **Wash the plate first and re-run before touching anything else.** A freshly washed plate fixed it outright.
+- **Wash the plate BEFORE you start. Do not inspect it first — you cannot see this.** That is the whole finding, and it is written as a precondition rather than as a debugging step because it has now aborted this part **twice**, and on both occasions the plate was looked at beforehand and judged clean. A plate carrying enough contamination to tear a 251 cm² slab looks exactly like a plate that does not. Washing costs two minutes; the print it saves is hours.
+
+  What works is **detergent and water** — Ajax, the second time, and the plate is holding. Soap is what lifts skin oils; a wipe is not the same operation.
+
+- **Tearing on a slab first layer means ADHESION, not squish.** The lines split and the nozzle drags through what it just laid, which looks exactly like a nozzle set too low — and reading it that way sends you to Z-offset and flow ratio, which is the wrong end of the machine. What is actually happening is that unstuck line gets picked up on the next pass. Both aborts were fixed by a wash alone, with no setting changed.
 
   The reason a slab exposes this when smaller parts do not: on a small footprint the perimeters and a bit of area are enough to hold even a marginal plate, and the failure mode when it is not enough is *lifting*, which is obvious. At 251 cm² of solid, every square millimetre is bearing surface and one contaminated patch anywhere in the middle tears rather than lifts. A slab has no tolerance for a plate that a small part would print on happily.
 
-- **`Initial layer infill` is the speed that matters, not `Initial layer`.** For this footprint the first layer is roughly 0.6 m of perimeter against 60 m of infill — 97% of the path length. Slowing the wall speed changes nothing you can see. Set **Bottom surface pattern → Monotonic** while you are there; it is the most even option on a large flat bottom.
+- **`Initial layer infill` is the speed that matters, not `Initial layer`.** For this footprint the first layer is roughly 0.6 m of perimeter against 60 m of infill — 97% of the path length. Slowing the wall speed changes nothing you can see. The stock value is 105 mm/s; **60 is the number to try, and only after a wash has been ruled out.**
+
+  ~~Set Bottom surface pattern → Monotonic while you are there.~~ **It is already `monotonic` in the stock profile**, inherited from `fdm_process_common`, so that was an instruction to change something that needs no changing — the same trap this file warns about in the machine section, committed here. Verified in a `.3mf` sliced from the shipped profile.
 
 - **The part also reaches into the plate's outer band** — 158 mm on a 180 mm plate is 11 mm of margin, where the bed mesh is sparsest. Force a full mesh rather than letting it reuse the cached one.
 
