@@ -106,3 +106,13 @@ That is the whole answer to the post-height question, and it is worth being prec
 
 Still unmeasured: link size and chain length. Worth taking, since `chain_up` and `chain_down` are reported by every build precisely so real chain can be checked against them.
 
+
+### Tore on the first layer again, and again it was the plate
+
+Aborted on the first layer for the second time. Every first-layer-relevant setting in the `.3mf` was checked against the resolved `0.20mm Standard @BBL A1M` profile and **matched stock exactly** — speed, flow, bed temperature, elephant foot, skirt, brim, bottom pattern. There was no misconfiguration to find. A fresh wash with Ajax fixed it, as it did in August.
+
+**The finding is not the cause, it is that the cause is invisible.** Charles: "It's just hard to look at the plate and see that it needs that in advance." Both aborts were preceded by looking at the plate and judging it fine. A plate carrying enough contamination to tear a 251 cm² slab is indistinguishable by eye from one that is not, so any procedure that begins "check whether the plate needs washing" will keep failing — the check cannot return the right answer.
+
+So `SLICING.md` now carries it as a **precondition rather than a diagnosis**: wash before slicing a large flat-bottomed part, unconditionally, without looking. Two minutes against several hours, on a part that has now spent two first layers proving it.
+
+**The reprint after the wash completed clean.** Two aborts and one good print, with no setting changed between any of them — which is the strongest form the finding could take: the variable was never in the slicer.

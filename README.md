@@ -281,11 +281,12 @@ You should not need these — Claude runs them. They are documented because noth
 
 `examples/` is public and lives here. `parts/` is where real work happens — git-ignored, version-controlled separately, so your own designs stay private without leaving the working directory. Same commands drive both; which tree a part is in states whether it's *published*, not how it's built. See [PRIVACY.md](PRIVACY.md) — and if you have just cloned this and want to design something, put it in `parts/`; it is already ignored and `cad new` goes there by default.
 
-`examples/` holds seven printed parts, all carrying their real record rather than a tidied one — one large object, a half-size variant of it, a set of four small ones, and a standalone:
+`examples/` holds eight printed parts, all carrying their real record rather than a tidied one — one large object, the ground it stands on, a half-size variant of it, a set of four small ones, and a standalone:
 
 | | |
 |---|---|
 | [`castle`](examples/castle/) | a haunted castle facade, 178 mm and eleven hours. **A print that failed for a reason that was never in the model**, and one recurring bug — geometry sized from one constraint and never checked against its surroundings — wearing six different costumes. |
+| [`castle_base`](examples/castle_base/) | ground for the castle to stand on, and the first part here that must **fit** another — a moat, a forecourt, a drawbridge on a printed pin hinge, and a sign you put your own name on. Read it for the `assemblies/` contract that carries the numbers along the cut, and for a first layer that tore twice with **every slicer setting matching stock**: the variable was never in the file. |
 | [`mini_castle`](examples/mini_castle/) | the castle at half size, as a **variant rather than a fork** — its `model.py` holds no geometry, it loads the castle's and subtracts two boxes. What happens when a scaled part meets a component that does not scale. |
 | [`raven_lantern`](examples/raven_lantern/) | six ravens. Lost a *Nevermore* inscription on the way, and the README explains why the feature and the thing that killed it were the same feature. |
 | [`witch_lantern`](examples/witch_lantern/) | five heads in profile. Printed *with* supports, which settled a rule the set had over-generalised. |

@@ -739,7 +739,12 @@ PRIVATE_ART_SUFFIXES = {".pxd", ".psd", ".xcf", ".ai", ".afdesign", ".sketch"}
 
 _ISO = r"20\d\d-\d\d-\d\d"
 # `<part>-YYYYmmdd-HHMM.stl` — the export stamp, which is precise to the minute.
-_STAMP = re.compile(r"-(20\d{6})-(\d{4})(?=\.[A-Za-z0-9]+\b|$)")
+# The time is optional because not every artifact here is written by `cad build`:
+# a slicer project is saved by hand and gets named `<part>-YYYYmmdd.3mf`. That
+# form once published a date, because a pattern that demanded `-HHMM` matched
+# nothing and passed the name through silently — the one failure mode the date
+# scrubbing is supposed not to have.
+_STAMP = re.compile(r"-(20\d{6})(?:-(\d{4}))?(?=\.[A-Za-z0-9]+\b|$)")
 
 
 def _undated(name: str) -> str:
