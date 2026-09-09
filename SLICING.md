@@ -78,6 +78,20 @@ Applies to any pierced wall, not only to lanterns. Both of these were diagnosed 
 
 - **The part also reaches into the plate's outer band** — 158 mm on a 180 mm plate is 11 mm of margin, where the bed mesh is sparsest. Force a full mesh rather than letting it reuse the cached one.
 
+## Geometry — parts whose first layer touches on points, not on a face
+
+The opposite case to the slab above, and it wants the opposite settings. A figurine that stands on talons, a tail tip and a wingtip has a first layer that is not one region at all — it is a scatter of disconnected dots, several of them smaller than a fingernail clipping.
+
+Measured on a 103 × 76 × 91 mm dragon (a downloaded model, not a `cadforge` part): **15 separate first-layer regions**. Seven carried real area — 245, 99, 98, 85, 84, 30, 30 mm² — and **eight were 1.2 to 2 mm² each**, which is a contact patch about 1.5 mm across. Total first-layer footprint 684 mm² spread over a 78 cm² plan area, so roughly 1% of the envelope is actually touching glass.
+
+- **Brim wide, and `brim_object_gap` at 0 rather than the stock 0.1.** A 1.5 mm dot has no adhesion budget to spend on a decoupled brim: at 0.1 the collar holds itself down and lets the feature it is supposed to anchor lift anyway. Zero gap welds the collar to the feature, which is the only version that does anything. 15 mm of brim on the dragon.
+
+- **Then budget for removal, because you have chosen to fuse a collar to the most delicate feature on the part.** This is the bill, stated the way the support-foot trade is stated above: the setting that stops a talon letting go mid-print is the same setting that makes the talon hard to free afterwards. Cut the collar *away* from the tip with a blade rather than pulling it — a pull loads the talon in exactly the direction it is weakest. Expect brim removal to be the fiddly hour of the print, not an afterthought.
+
+- **Do not reach for the slab section's remedies.** A wash is cheap and never wrong, but point contact fails by *lifting*, which is visible from across the room, where a slab fails by *tearing*, which reads as bad squish. Different failure, different fix, and slowing initial layer infill speed does nothing here — there is barely any infill on the first layer to slow.
+
+**How to see this before printing rather than after.** The count of first-layer regions and their areas is not something the plate preview shows and not something a slicer reports. Intersect the mesh with a plane a fraction above its lowest point, label the connected regions and read off the areas — the tiny ones are the whole finding, and a bounding box will not reveal them because the dots are spread right across the footprint. Any part whose smallest first-layer region is under about 5 mm² belongs in this section rather than the one above it.
+
 ## Supports
 
 Not a prohibition. `cad build`'s **islands** check reports WARN, because the question is a decision and the harness should not make it:
