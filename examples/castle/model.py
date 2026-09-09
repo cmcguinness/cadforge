@@ -58,6 +58,10 @@ from cadkit import Params
 # questions: if a third part needs it, it should move somewhere neutral.
 from projects.halloween_lantern.shared import PUCK
 
+# The ground plan, shared with `castle_base`. Imported for the sole purpose of
+# asserting against it — no geometry here is built from it. See check().
+from assemblies import castle_ground as ground
+
 
 # ---------------------------------------------------------------------------
 # The elevation.
@@ -1847,6 +1851,33 @@ def check(part: Part, p: P) -> None:
         f"punching through divides it and the mouth stops reading as a mouth")
     assert p.transom_h - p.canine_drop >= 2 * printer.NOZZLE, (
         f"only {p.transom_h - p.canine_drop:.1f} mm of material under a canine")
+
+    # --- the ground plan castle_base is cut to -------------------------------
+    # `castle_base` seats this part in a recess cut from the numbers in
+    # `assemblies/castle_ground.py`. Those numbers are a copy, and a copy that
+    # nothing checks is a copy that goes stale. This is the check: move anything
+    # in the ground plan and THIS build fails, here, naming the file to fix —
+    # rather than the base printing overnight and not accepting the castle.
+    #
+    # Deliberately asserted against the built solid rather than against the
+    # elevation tables, because the footprint is an emergent fact: the corner
+    # turrets contribute x = ±67 and y = -9 through 225° of arc that no block's
+    # coordinates mention.
+    foot = part.intersect(Plane(origin=(0, 0, 0.5)))
+    fb = Compound(children=foot.faces()).bounding_box()
+    for what, got, want in (("half-width", max(-fb.min.X, fb.max.X), ground.EXTENT_HALF_W),
+                            ("front edge", fb.min.Y, ground.EXTENT_Y0),
+                            ("back edge",  fb.max.Y, ground.EXTENT_Y1)):
+        assert abs(got - want) < 0.05, (
+            f"footprint {what} is {got:.2f} mm, but assemblies/castle_ground.py "
+            f"tells castle_base it is {want:.2f} mm. Update the contract and "
+            f"rebuild the base — its seat is cut to that number")
+    assert abs(FACE_X - ground.GATE_X) < 1e-6 and abs(p.floor_t - ground.FLOOR_T) < 1e-6, (
+        "the gate's centreline or the floor thickness has moved away from "
+        "assemblies/castle_ground.py — the drawbridge is placed from both")
+    assert abs(FOOT - ground.FOOT) < 1e-9, (
+        "the castle's scale and the ground's scale disagree — a moat sized in "
+        "feet would come out at the wrong size against this castle")
 
     # --- it fits, standing up ------------------------------------------------
     assert g.height <= printer.BED_Z, (

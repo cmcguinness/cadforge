@@ -94,6 +94,32 @@ The plate prints flat, so the artwork's plane is horizontal during printing. Eve
 
 That is why this outline keeps every feather lobe and both ear tufts, and why 99.6% of it survives three extrusion widths at any size from 100 mm up, against the witch's 98.4% after deliberate simplification. **Do not import vertical-plane constraints into a flat part**; `chatgpt-prompts/owl-cutout.md` says the same thing to whoever writes the next one.
 
+## The sleeve's length is decided by which way the puck points
+
+The puck lies on its **side** here, aimed forward at the back of the plate, and that single fact sets everything about the sleeve.
+
+`tealight_sleeve` establishes at length that a sleeve wraps the puck's opaque base and stops there, because on an **upright** puck the walls stand over the flame and every millimetre of shroud is light taken from the thing being lit. That reasoning inverts when the puck lies down: the walls are then *beside* the flame, so they block the light going sideways and pass all of the light going forward. Shrouding becomes the function. This part therefore runs the sleeve the whole length of the puck and asserts the opposite bound to the one `tealight_sleeve` asserts — deliberately, and the pair of assertions is the record of why.
+
+So the transferable rule is not "sleeves stop at the base". It is that **a sleeve is a chock when the puck stands up and a snoot when it lies down**, and the length follows from that, not from the shape.
+
+The value is written as the puck's overall height rather than as twice its base, even though on this puck those are the same number. Twice-the-base is how it was arrived at — Charles scaled the shipped 15 mm sleeve 200% in Z in the slicer — but the puck's height is *why* it is right, and it is the form that stays right if the puck is ever re-measured with a taller flame.
+
+## `shelf_z` is where the shelf floor begins, not where the puck rests
+
+The puck stands on the **top** of the shelf's floor slab, one `shelf_t` above `shelf_z`. `geometry()` derives the LED band from `shelf_z`, so for an upright puck those heights are one slab-thickness low and the coverage assertion checks a band the puck does not occupy.
+
+It is left as it is, which is a decision rather than an oversight. The part is printed and accepted, this puck lies down, and moving `shelf_z` to fix a case the part does not use would move a number on a working object. What was done instead is to name `floor_top` in `geometry()` and position the sleeve from **that**, so nothing new inherits the wrong datum. Anything else that ever sits on this shelf must do the same.
+
+The sideways numbers in `prints.md` were computed from `shelf_z` before this was noticed, and the correction runs the other way to what anyone expected: the improvised sideways puck was landing almost exactly on the eye centre, not 2.5 mm below it. The recommendation there to raise the shelf would have broken a correct alignment.
+
+## What the sleeve costs
+
+Two things, both small, both asserted rather than assumed — because both are fine at 140 mm and neither is guaranteed to be fine at another size.
+
+**It lifts the flame.** A bare puck rests on its own cylinder; a sleeved one rests on a wall and sits centred in a bore, so the axis is a wall thickness plus half the bore-to-diameter difference higher. The axis has to stay inside the eyes, and `check()` says so against the traced eye band rather than against a remembered margin.
+
+**Lying down, its across-flats becomes its height**, which puts it far above the shelf rim and well above the eyes. "The shelf is not visible from the front" is therefore no longer a statement about the shelf: the thing that has to hide the sleeve is the owl's silhouette, which is a property of the traced outline at whatever size it is drawn. `check()` walks the silhouette over the sleeve's full height rather than checking one width at one place — the same lesson as the three global-versus-local bugs above, applied before it could cost anything.
+
 ## Open threads
 
 - **The branch has 4 islands and 23 planar overhangs** on its underside, from the forks curving up off the bed. Under a branch nobody looks at, supports are the cheap answer — but this has not been printed, and the underside is what sits on the shelf, so scars there could rock it. Worth a look at the first print.

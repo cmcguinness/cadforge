@@ -120,3 +120,35 @@ A full 360° turn was filmed (`videos/finished_castle.mov`, reduced to `finished
 None of this is a defect and none of it required a geometry change. It is the outer loop paying out: the object in the room is more capable than the object that was specified, and the gap was invisible until somebody put six pucks in it and turned the light off.
 
 **A dark turret window is visible in the turn too**, which independently confirms the abandoned criterion above rather than leaving it resting on one still.
+
+### Printed clean, and the supports had to be demolished
+
+The support settings that stop the feet letting go are the same ones that make the supports unremovable, and this print found the far end of that.
+
+- **Settings:** as before, plus `Bottom Z distance` 0.2 → **0**, `Branch diameter angle` 5° → **12°**, `Branch diameter` 2 → **4**, `Independent support layer height` **off**. Everything else unchanged — `support on build plate only` still off, branch angle still 30°, `Remove small overhangs` still on.
+- **Result: it printed.** No collapse, nothing came loose. The two previous attempts failed at the supports and this one did not, so the settings work.
+- **The cost: removal was demolition.** The supports did not want to release. At 12° over a 36 mm column a 4 mm branch tip becomes a roughly 19 mm foot, and at zero bottom gap every bit of that is fused to the chamber floor — about five times the footprint of the original settings, all of it welded rather than resting.
+- **Verdict:** printed. Keep the settings if a print that survives matters more than an easy strip; take the angle to 8° otherwise. Recorded in `SLICING.md` under the hollow-parts section, with the trade set out as a table.
+
+**The general shape of it**, since this part has now taught it twice: each fix here creates the next failure one step along. Supports on the plate topple, so they were moved onto the chamber floors; feet on chamber floors let go, so they were welded and fattened; welded fat feet will not come off. None of the three settings is wrong and none of them is free.
+
+**Agreed for next time: dial back both ends.** Branch diameter angle 12° → 8° for the feet, branch diameter 4 → 2 for the ceilings. Keep `Bottom Z distance` at 0 — it is the half of the pair that does the real work — and leave `Top Z distance` alone, because a wider gap is a ceiling that sags further and these chamber ceilings are wide.
+
+**Both are reversions, and the second one is a correction.** Branch diameter was first written off here as nearly irrelevant, on the grounds that over a 36 mm column the taper swamps it. True of the foot, false of everything else: the tooltip calls it the diameter of support *nodes*, which is the **tip** — the end touching the ceiling. Taking it 2 → 4 doubled the weld at every ceiling while buying about 2 mm at the foot. It is the wrong knob at the bottom and the harmful one at the top.
+
+**The `.3mf` is saved** at `accepted/castle.3mf` — the filename's date comes from the mesh it was built on, not from the slice, which is from this run. Reading its settings back is also what caught the error above: `independent_support_layer_height` is still **on** in it, so the recommendation to turn it off was never actually applied, and any reasoning that assumed it had been is void.
+
+### The paper's own edge shows through the wall
+
+Charles, fitting diffusers: the first-floor sheet has to run the **full width** of the wall, because a sheet that stops part-way across leaves "a noticeable shadow of the paper you can see through the castle walls".
+
+This follows directly from something already recorded above — in purple at `wall = 2.4` the facade **transmits**, and reads as lit stone rather than a dark box. Once the wall is translucent, anything behind it is a silhouette, and that includes the diffuser meant to be invisible. A paper edge sitting mid-wall is backlit from one side and not the other, so it draws a line across the masonry.
+
+**Nothing in this repo could have found it.** The renderer shades opaque solids; every assertion reasons about geometry, printability or line of sight from the flame. Translucency is a filament property that only exists in the object, and this failure is *caused* by the material rather than merely invisible to the model.
+
+Two consequences, both now in `paper_templates.py`:
+
+- **The sides of a sheet are not a glue margin, they are a lighting requirement.** They run out to where the flat wall ends, so the edge lands in a corner where the geometry changes anyway and there is nothing to see. The first-floor sheet is therefore 103 mm wide rather than the 72 mm that gluing alone would want.
+- **The first-floor sheet has a right way round**, and getting it wrong reintroduces the fault. The face is built about the gate at x = +2 rather than the castle's centreline, so there is about 4 mm more wall to its left than its right; reversed, it overhangs one side by that and leaves a 4 mm gap on the other — and the gap is a backlit paper edge. The template is marked TOP / LEFT / RIGHT for that reason.
+
+It is conditional on the filament: in an opaque black the walls do not transmit and none of this applies. The templates stay at full width regardless, because a sheet that is too wide costs a moment with scissors and one that is too narrow is visible from across the room.

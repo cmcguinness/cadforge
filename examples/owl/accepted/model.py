@@ -4,13 +4,13 @@ r"""owl — a creepy owl that stares at you, on a printed branch.
        (  o    o   )        eyes: apertures, level with the puck's LED
         \    v    /         beak: aperture, level with its OPAQUE BASE
          \______/
-      ===<        >===      branch: a separate piece, slot-and-glue
+      ===<        >===      branch: a separate piece, slot-and-tab, dry
               |
            [ shelf ]        behind the head, holding the tea light
 
 Two pieces. The **plate** is the owl cut to its own outline, printed lying flat
 on the bed, with a shelf standing off its back. The **branch** is a perch with a
-straight slot; the owl's tab drops into it and is glued.
+straight slot; the owl's tab drops into it and is held by its own weight.
 
 THE NUMBER THIS PART TURNS ON
 -----------------------------
@@ -109,9 +109,14 @@ class P(Params):
     behind the owl than in front of it."""
 
     slot_clear: float = 0.35
-    """Clearance per side between tab and slot. This joint is GLUED, so it wants
-    a glue gap, not an interference fit. A tight slot in PLA either refuses to
-    assemble or splits the branch, and glue in a snug joint has nowhere to sit."""
+    """Clearance per side between tab and slot. NOT an interference fit: a
+    tight slot in PLA either refuses to assemble or splits the branch.
+
+    This value was chosen as a *glue gap*, and the printed part then turned out
+    not to need glue — the plate seats on this clearance and its own weight
+    holds it. Right number, dead premise. Do not tighten it to add grip: the
+    seat already works, and the only thing a snugger fit buys is the split this
+    clearance exists to prevent."""
 
     tab_h: float = 8.0
     """How far the tab reaches down into the branch."""
@@ -126,6 +131,35 @@ class P(Params):
     """Cut the beak. A filled beak is invisible — black plastic on a black body —
     so it reads only as a hole. Kept as a switch because it is the one aperture
     whose brightness is a matter of taste."""
+
+    sleeve_bore: float = 36.0
+    """Square bore of the puck's sleeve. MEASURED, not chosen — settled by
+    `tealight_sleeve`'s three-bore sweep, where the tightest of the
+    three was the one that went on by hand and held. Do not re-derive it here;
+    if it ever moves, it moves there first."""
+
+    sleeve_wall: float = printer.MIN_WALL
+    """Thinnest the nozzle draws, which is also exactly two perimeters, so the
+    wall carries no sparse infill. Same reasoning as `tealight_sleeve`."""
+
+    sleeve_len: float = PUCK.flame_top
+    """Length of the sleeve, along the puck's axis — the WHOLE puck, flame and
+    all, where `tealight_sleeve` stops at the opaque base.
+
+    That is a deliberate contradiction of that part's central rule, and the
+    reason it is right here is that the two parts are doing opposite jobs. A
+    sleeve on an UPRIGHT puck that reached past the base would shroud the flame
+    from the thing being lit. This puck lies on its SIDE, aimed forward at the
+    owl's back, so the sleeve's walls are beside the flame rather than over it:
+    they block the light going sideways and pass all of the light going
+    forward. Shrouding is the point, not the failure.
+
+    The value is not a coincidence either. Charles printed this by scaling the
+    15 mm sleeve 200% in Z, and `2 * opaque_h` happens to equal `flame_top` on
+    this puck — so "double tall" and "as long as the whole puck" are the same
+    number, arrived at from different directions. It is written as the second of
+    those because that is the one that stays true if the puck is ever
+    re-measured."""
 
 
 PARAMS = P()
@@ -181,6 +215,24 @@ def geometry(p: P) -> SimpleNamespace:
         tab_h=p.tab_h,
         seat_z=0.0,               # the owl sits exactly where the artwork put it
         puck_centre=p.plate_t + PUCK.dia / 2,   # where the puck's mass acts
+        # --- the sleeve, and the surface it stands on ---------------------
+        # `floor_top`, NOT `shelf_z`. shelf_z is where the shelf's floor slab
+        # BEGINS; the puck rests on top of that slab, `shelf_t` higher up. The
+        # LED-band derivation above measures from shelf_z and so is 2.4 mm out
+        # for an upright puck — see notes.md. It does not matter for the puck
+        # this part actually uses, which lies down, but anything positioned on
+        # the shelf must use this and not that.
+        floor_top=shelf_z + p.shelf_t,
+        sleeve_across=p.sleeve_bore + 2 * p.sleeve_wall,
+        # Lying on its side the sleeve's across-flats becomes its HEIGHT, and
+        # the puck sits centred in the bore, so the flame axis is half the
+        # across-flats above the shelf floor — 1.3 mm higher than a bare puck
+        # resting on its own cylinder. That is the sleeve's one geometric cost
+        # and it is asserted against the eye band rather than assumed small.
+        sleeve_axis_z=shelf_z + p.shelf_t + p.sleeve_wall + p.sleeve_bore / 2,
+        sleeve_top_z=shelf_z + p.shelf_t + p.sleeve_bore + 2 * p.sleeve_wall,
+        sleeve_front=p.plate_t,
+        sleeve_back=p.plate_t + p.sleeve_len,
     )
 
 
@@ -343,6 +395,28 @@ def _feet(p: P, g) -> Part:
     return out
 
 
+def _sleeve(p: P, g) -> Part:
+    """The puck's snoot: a square tube, lying on the shelf, aimed at the owl.
+
+    Same construction as `tealight_sleeve` and for the same reasons — one
+    primitive minus another, OUTSIDE any builder, cutter longer than the sleeve
+    so its ends fall clear of the faces they cut.
+
+    Modelled here in its USE pose: axis horizontal, running front to back, front
+    end flush with the plate's rear face. `pieces()` stands it up for printing.
+    Both ends stay open: the front is the aperture that lights the owl, and the
+    back is what keeps the switch and the battery hatch reachable with the puck
+    in place.
+    """
+    across = g.sleeve_across
+    outer = Box(across, p.sleeve_len, across,
+                align=(Align.CENTER, Align.MIN, Align.MIN))
+    cutter = Box(p.sleeve_bore, p.sleeve_len + 2, p.sleeve_bore,
+                 align=(Align.CENTER, Align.MIN, Align.MIN))
+    tube = outer - cutter.locate(Location((0, -1, p.sleeve_wall)))
+    return tube.move(Location((0, g.sleeve_front, g.floor_top)))
+
+
 def build(p: P) -> Part:
     """The assembly: owl seated in its branch, as it will stand on a shelf.
 
@@ -355,7 +429,10 @@ def build(p: P) -> Part:
     g = geometry(p)
     plate = _plate(p, g).move(Location((0, 0, g.seat_z)))
     branch = _branch(p, g).move(Location((0, g.branch_front, 0)))
-    return plate + branch
+    # The sleeve is in the assembly because the cutaway is the only view that
+    # can show it: from the front it is entirely hidden behind the owl, which
+    # is a criterion rather than an accident.
+    return plate + branch + _sleeve(p, g)
 
 
 def pieces(p: P) -> dict:
@@ -370,8 +447,12 @@ def pieces(p: P) -> dict:
     # face — 9229 mm2 of it — becomes a flat overhang 47 mm above the plate.
     plate = _plate(p, g).rotate(Axis.X, 90)
     branch = _branch(p, g)
+    # Stood on end, bore axis vertical — every face vertical or horizontal, no
+    # supports. This is NOT the pose it is used in, and the two genuinely
+    # differ: in use the axis is horizontal, which is the whole point of it.
+    sleeve = _sleeve(p, g).rotate(Axis.X, 90)
     out = {}
-    for name, shape in (("plate", plate), ("branch", branch)):
+    for name, shape in (("plate", plate), ("branch", branch), ("sleeve", sleeve)):
         bb = shape.bounding_box()
         # `.move()`, not `.locate()`. locate() sets an ABSOLUTE location and
         # discards whatever transform the shape already carried — so it threw
@@ -406,6 +487,67 @@ def check(part: Part, p: P) -> None:
             f"the eyes for brightness"
         )
 
+    # --- the sleeve ---------------------------------------------------------
+    # It shrouds the whole puck and no more. Both directions, because both are
+    # real: short of the flame tip it leaks out of the side it was built to
+    # block, and past it the sleeve is adding length the shelf has to find for
+    # nothing. `tealight_sleeve` asserts the OPPOSITE bound for an upright puck
+    # — that is not a contradiction to be tidied up, it is two parts wanting
+    # opposite things, and the pair of assertions is what records that.
+    assert p.sleeve_len >= PUCK.flame_top - 1e-9, (
+        f"a {p.sleeve_len:.1f} mm sleeve stops {PUCK.flame_top - p.sleeve_len:.1f} "
+        f"mm short of the {PUCK.flame_top:.1f} mm puck, so the flame tip sticks "
+        f"out of the end and lights the side of the shelf it was meant to hide"
+    )
+    assert p.sleeve_len <= PUCK.flame_top + 1e-9, (
+        f"a {p.sleeve_len:.1f} mm sleeve is longer than the {PUCK.flame_top:.1f} "
+        f"mm puck — shroud past the flame tip blocks nothing and only eats shelf"
+    )
+    assert p.sleeve_bore > PUCK.dia, (
+        f"a {p.sleeve_bore:.1f} mm bore cannot admit a {PUCK.dia:.1f} mm puck at "
+        f"all — the arithmetic failing, long before the fit does"
+    )
+
+    # Raising the flame axis is the sleeve's one cost, and it is only affordable
+    # while the axis stays inside the eyes. The bare puck rests on its own
+    # cylinder at dia/2; sleeved, it rests on a wall and sits centred in a bore.
+    assert eye_lo < g.sleeve_axis_z < eye_hi, (
+        f"the sleeve lifts the flame axis to {g.sleeve_axis_z:.1f} mm, outside "
+        f"the eyes at {eye_lo:.1f}-{eye_hi:.1f} mm — a bare puck sits at "
+        f"{g.floor_top + PUCK.dia / 2:.1f}, so the sleeve, not the shelf, is what "
+        f"moved"
+    )
+
+    # It must not peek out from behind the head. Lying down, the sleeve's
+    # across-flats is its HEIGHT as well as its width, so it reaches far above
+    # the shelf and far above the eyes — 14 mm above them at 140 mm — and
+    # "the shelf is not visible from the front" stops being a statement about
+    # the shelf. Checked against the traced silhouette at every height the
+    # sleeve occupies, because the owl narrows towards the ear tufts and a
+    # rescale changes where it stops being wide enough.
+    z = g.floor_top
+    while z <= g.sleeve_top_z + 1e-9:
+        span = _body_span_at(z, g.h)
+        assert span is not None and min(-span[0], span[1]) >= g.sleeve_across / 2, (
+            f"at z={z:.1f} mm the owl is only {span and min(-span[0], span[1]):.1f} "
+            f"mm to either side of centre but the sleeve needs "
+            f"{g.sleeve_across / 2:.1f} — it would show past the silhouette"
+        )
+        z += 1.0
+
+    # And it has to fit in the pocket the shelf's rim makes, which is the
+    # tightest clearance on the part: 0.7 mm a side at 140 mm.
+    pocket_w = PUCK.dia + 2 * p.lip_h + 4 - 2 * p.lip_h
+    assert g.sleeve_across < pocket_w, (
+        f"the sleeve is {g.sleeve_across:.1f} mm across and the rim's pocket is "
+        f"{pocket_w:.1f} mm — it will not sit down inside the lip"
+    )
+    assert g.sleeve_back <= p.plate_t + p.shelf_d - p.lip_h, (
+        f"the sleeve reaches {g.sleeve_back:.1f} mm back and the rim's inner "
+        f"face is at {p.plate_t + p.shelf_d - p.lip_h:.1f} — it will not fit "
+        f"between the plate and the back rim"
+    )
+
     # --- the pieces are pieces --------------------------------------------
     for name, shape in pieces(p).items():
         n = len(shape.solids())
@@ -413,8 +555,8 @@ def check(part: Part, p: P) -> None:
 
     # --- the joint ---------------------------------------------------------
     assert p.slot_clear > 0, (
-        "the slot is glued, so it needs a glue gap; an interference fit in PLA "
-        "either will not assemble or splits the branch"
+        "the slot needs clearance; an interference fit in PLA either will not "
+        "assemble or splits the branch"
     )
     assert g.slot_top < 0, (
         "BRANCH_TOP_AT_SLOT is not negative — re-check the trace; the artwork "
@@ -481,8 +623,8 @@ def check(part: Part, p: P) -> None:
     )
 
     # --- the tab is seated in the slot -------------------------------------
-    # Two loose pieces are CORRECT here: the joint is a clearance fit with glue
-    # in the gap, so the assembly is legitimately two solids and must not fuse.
+    # Two loose pieces are CORRECT here: the joint is a clearance fit, so the
+    # assembly is legitimately two solids and must not fuse.
     # That makes a bounding box useless — a branch sitting 46 mm in front of the
     # owl gives exactly the same solid count as one it is seated in, and renders
     # identically from the front.
@@ -515,6 +657,16 @@ def check(part: Part, p: P) -> None:
     assert p.plate_t >= 3 * printer.NOZZLE, (
         f"plate is {p.plate_t} mm, under three extrusion widths"
     )
+
+
+def _body_span_at(z: float, h: float) -> tuple | None:
+    """Left and right extent of the owl's silhouette at height `z`, in mm."""
+    zn = z / h
+    xs = []
+    for (x1, y1), (x2, y2) in zip(BODY, BODY[1:] + BODY[:1]):
+        if (y1 - zn) * (y2 - zn) <= 0 and y1 != y2:
+            xs.append((x1 + (x2 - x1) * (zn - y1) / (y2 - y1)) * h)
+    return (min(xs), max(xs)) if xs else None
 
 
 def _band(poly_a, poly_b, h) -> tuple:

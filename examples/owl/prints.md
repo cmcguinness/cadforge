@@ -62,6 +62,37 @@ Three things follow:
 - **It disassembles**, which is a real gain nobody designed for. The plate stores and travels flat, and the two pieces pack smaller than the assembled ornament.
 - **Do not tighten the slot to make it grip harder.** The seat works; a snugger one buys nothing and risks the split the clearance exists to prevent. The lantern set already paid for the general form of this mistake once, tightening `fit` to cure a rattle and ending up with a bore a puck would not enter.
 
+## Iteration #7 — the sleeve got twice as tall, and that is what fixed the side leak
+
+- **Settings:** as iteration #6 — black PLA, plate flat, branch upright. The new piece is a `tealight_sleeve` printed at **double length**, made by scaling the shipped 15 mm STL 200% in Z in the slicer. Z-only scaling leaves bore and wall untouched, so the printed object is 36.0 mm bore, 0.8 mm wall, 30.0 mm long — dimensionally identical to the sleeve now in `pieces()`.
+- **Result:** the puck lies inside it on the shelf, and **the light that used to spill sideways off the shelf is gone.** Charles: "This allowed me to hide the light leaking from the side so it didn't distract the viewer." Light still escapes rearward, which nobody minds — you have to stand behind the ornament to see it, and at that point you are not looking at the owl anyway.
+- **Verdict: good.** The sleeve is now a third piece of this part rather than a field modification.
+
+### Why a sleeve that shrouds the flame is right here and wrong in `tealight_sleeve`
+
+`tealight_sleeve` spends three paragraphs establishing that the sleeve **wraps the base, not the flame**, and asserts its length equals `PUCK.opaque_h` in both directions. This part asserts the opposite bound — `sleeve_len == PUCK.flame_top` — and both are correct, because the two parts are doing opposite jobs with the same shape.
+
+The difference is the puck's orientation, which is the same fact `shared.py` warns about and `mini_castle` found by accident. Upright, the sleeve's walls stand **over** the flame, and everything they cover is light taken away from whatever the puck is meant to light. On its side, aimed forward at the owl's back, the walls stand **beside** the flame: they block the sideways light and pass all of the forward light unobstructed. Shrouding is the whole function rather than the failure mode.
+
+So the rule to carry forward is not "sleeves stop at the base" but **a sleeve's length is decided by which way the puck points**. Upright, it is a chock and stops at the base. On its side it is a snoot and runs the whole length of the puck.
+
+### "Double tall" and "the whole puck" are the same number by coincidence, and only one of them is a reason
+
+`2 × opaque_h = 30.0` and `flame_top = 30.0`. The doubling is how the number was arrived at in the slicer; the puck's overall height is why it is the right number. `model.py` carries the second, because it is the one that survives the puck being re-measured — if a future puck has a taller flame, "double" stops shrouding it and `flame_top` does not.
+
+### What the sleeve costs, and the two things now asserted because of it
+
+- **It lifts the flame axis 1.3 mm.** A bare puck rests on its own cylinder, axis at `dia/2` above the shelf; sleeved, it rests on a 0.8 mm wall and sits centred in a 36 mm bore, so the axis is at `wall + bore/2` = 18.8 instead of 17.5. Measured against the shelf floor's **top face** the numbers are 95.15 mm sleeved against 93.85 bare, with the eyes spanning 88.5–99.4 and centred at 93.95. Both are comfortably inside the eyes; the sleeved one is 1.2 mm high of centre where the bare one was 0.1 mm low. Asserted, because it is the kind of small penalty that is fine at 140 mm and not fine at some other size.
+- **It is 37.6 mm across, so lying down it stands 37.6 mm tall** — 14.6 mm above the top of the eyes and far above the 3 mm shelf rim. "The shelf is not visible from the front" therefore stopped being a statement about the shelf. The owl's silhouette is at least ±32.5 mm wide everywhere the sleeve occupies, so it hides it completely, but that is a property of the traced outline at this size rather than of anything designed. Asserted by walking the silhouette at 1 mm steps over the sleeve's full height.
+
+### A 2.4 mm error in the LED-band derivation, found while positioning the sleeve and deliberately not fixed
+
+`shelf_z` is where the shelf's floor slab **begins**; a puck on the shelf rests on the slab's **top**, `shelf_t` = 2.4 mm higher. `geometry()` derives `led_lo` and `led_hi` from `shelf_z`, so for an **upright** puck every one of those heights is 2.4 mm low, and the coverage assertion is checking a band the puck does not occupy.
+
+It changes nothing about this object — the puck lies down, and the sideways case is measured from `floor_top`, which is now a named field precisely so nothing else picks up the wrong datum. It is left alone rather than corrected because correcting it would move `shelf_z` on a part that is printed, accepted and works, to improve a case this part does not use. Recorded here so that the next person to read that derivation does not spend the evening re-deriving it and concluding it is right.
+
+**It also makes iteration #6's arithmetic above wrong, and by the same 2.4 mm.** That entry puts the bare sideways flame axis at 91.45 mm and calls it 2.5 mm below the eye centre; measured from the floor's top face it is 93.85, which is 0.1 mm below centre — the sideways puck was very nearly perfect and nobody knew. Its recommendation to raise the shelf to 76.45 would therefore have *broken* a correct alignment. Do not act on it.
+
 ## Template for an entry
 
 ### YYYY-MM-DD — iteration #N (`<params digest>`)
