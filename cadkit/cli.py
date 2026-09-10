@@ -810,12 +810,22 @@ def _scrub(text: str) -> tuple[str, int]:
     return text, n
 
 
-def _publish_file(src: Path, dst: Path, changes: list) -> None:
+def _publish_file(src: Path, dst: Path, changes: list, stripped: list) -> None:
+    """Copy one file into the published snapshot, minus what must not go out.
+
+    Text loses its dates (`_scrub`). Images lose their metadata (`imgmeta`): a
+    photograph's EXIF carries the second it was taken and the camera's serial
+    number, which is the calendar the text scrubbing exists to withhold. Images
+    were once copied through untouched, and that undid the rest of this.
+    """
     import shutil
+    from . import imgmeta
     if src.suffix in (".md", ".py", ".txt", ".json", ".jsonl"):
         scrubbed, n = _scrub(src.read_text(errors="replace"))
         dst.write_text(scrubbed)
         changes.append(n)
+    elif imgmeta.supports(src):
+        stripped.append(imgmeta.strip(src, dst))
     else:
         shutil.copy2(src, dst)
         changes.append(0)
@@ -950,6 +960,19 @@ def cmd_promote(args) -> int:
     art = _artwork(src)
     photos = _root_images(src)
 
+    # Refuse up front, not halfway through a copy, if an image is in a format
+    # whose metadata cannot be stripped: publishing it as-is is the leak.
+    from . import imgmeta
+    images = [*photos, *art, *(p for d in carried_dirs for p in d.iterdir()
+                               if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES)]
+    unstrippable = sorted(f.name for f in images
+                          if f.suffix.lower() != ".svg" and not imgmeta.supports(f))
+    if unstrippable:
+        raise SystemExit(
+            f"\ncannot strip metadata from {', '.join(unstrippable)}.\nConvert to "
+            f".jpg, .png or .gif first: an image published with its metadata "
+            f"carries when it was taken and the camera's serial number.")
+
     _hr(f"{'refreshing' if dst.exists() else 'about to publish'} "
         f"{args.name} → examples/{args.name}")
     for f in carried:
@@ -975,6 +998,8 @@ def cmd_promote(args) -> int:
         print("    image is what a reader needs; the working file is yours.")
     print("\nDates are stripped from what does go out: print-log headings, the")
     print("accepted mesh's timestamped filename, and ACCEPTED.md's date field.")
+    print("Images lose their metadata — capture time, camera make, model and")
+    print("serial number, GPS, editing software — with the pixels copied untouched.")
     print("notes.md and prints.md still carry measurements and dead ends —")
     print("that is what makes a published part worth reading. Check them.")
     if not args.yes:
@@ -985,24 +1010,27 @@ def cmd_promote(args) -> int:
         shutil.rmtree(dst)      # a refresh replaces the snapshot wholesale
     dst.mkdir(parents=True)
 
-    changes = []
+    changes, stripped = [], []
     for f in carried:
-        _publish_file(f, dst / f.name, changes)
+        _publish_file(f, dst / f.name, changes, stripped)
     for d in carried_dirs:
         (dst / d.name).mkdir()
         for f in sorted(p for p in d.iterdir() if p.is_file()):
-            _publish_file(f, dst / d.name / _undated(f.name), changes)
+            _publish_file(f, dst / d.name / _undated(f.name), changes, stripped)
     for f in photos:
-        shutil.copy2(f, dst / f.name)
+        _publish_file(f, dst / f.name, changes, stripped)
     if art:
         (dst / "inspiration").mkdir(exist_ok=True)
         for f in art:
-            shutil.copy2(f, dst / "inspiration" / f.name)
+            _publish_file(f, dst / "inspiration" / f.name, changes, stripped)
 
     print(f"\npublished to {dst.relative_to(ROOT)}")
     if changes:
         print(f"  scrubbed {sum(changes)} date reference(s) across "
               f"{len([c for c in changes if c])} file(s)")
+    if stripped:
+        print(f"  stripped {sum(stripped)} metadata block(s) from "
+              f"{len([s for s in stripped if s])} of {len(stripped)} image(s); pixels untouched")
     print(f"  the working copy stays at {src.relative_to(ROOT)} and keeps its "
           f"history")
     print("  re-run `cad promote` after further refinement to refresh the "
