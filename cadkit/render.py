@@ -257,6 +257,27 @@ def _label(img: Image.Image, text: str) -> Image.Image:
     return out
 
 
+# Height of the timestamp banner across the top of a contact sheet.
+BANNER = 22
+
+
+def strip_banner(img: Image.Image) -> Image.Image | None:
+    """The sheet without its timestamp banner, or None if it has none.
+
+    The banner is right for review and wrong for publication, where dates are
+    withheld (see PRIVACY.md), so `cad promote` crops it off. Detected from the
+    geometry `contact_sheet` guarantees — whole rows of square frames plus the
+    banner — so a sheet made before banners existed is never cropped into its
+    own views: without a banner, the height less BANNER is not a whole number
+    of rows.
+    """
+    w, h = img.size
+    for cols in (3, 2, 1):
+        if w % cols == 0 and h > BANNER and (h - BANNER) % (w // cols) == 0:
+            return img.crop((0, BANNER, w, h))
+    return None
+
+
 def contact_sheet(shape, views=STANDARD_VIEWS, size: int = 520,
                   section_normal: str | None = "x") -> tuple[Image.Image, dict]:
     """One image with every standard view, plus a cutaway. Returns the sheet
@@ -278,7 +299,7 @@ def contact_sheet(shape, views=STANDARD_VIEWS, size: int = 520,
     # against, and an undated one is indistinguishable from a stale one — which
     # is not hypothetical: a sheet from before a change has already been read as
     # though it showed the change. The cost is 22 pixels.
-    band = 22
+    band = BANNER
     sheet = Image.new("L", (cols * size, rows * size + band), BG)
     d = ImageDraw.Draw(sheet)
     try:

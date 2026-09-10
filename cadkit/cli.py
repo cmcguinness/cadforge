@@ -824,6 +824,17 @@ def _publish_file(src: Path, dst: Path, changes: list, stripped: list) -> None:
         scrubbed, n = _scrub(src.read_text(errors="replace"))
         dst.write_text(scrubbed)
         changes.append(n)
+    elif src.name == "sheet.png":
+        # The render sheet has the time it was made drawn across its top.
+        from PIL import Image
+        from . import render
+        with Image.open(src) as img:
+            cropped = render.strip_banner(img)
+            (cropped if cropped is not None else img).save(dst)   # Pillow writes no metadata chunks
+        changes.append(0 if cropped is None else 1)
+    elif src.suffix.lower() == ".3mf":
+        from . import threemf
+        changes.append(threemf.scrub(src, dst))
     elif imgmeta.supports(src):
         stripped.append(imgmeta.strip(src, dst))
     else:
@@ -972,6 +983,16 @@ def cmd_promote(args) -> int:
             f"\ncannot strip metadata from {', '.join(unstrippable)}.\nConvert to "
             f".jpg, .png or .gif first: an image published with its metadata "
             f"carries when it was taken and the camera's serial number.")
+    # Same for slicer projects: a trial scrub into memory, so a project that
+    # cannot be cleaned stops the promotion before the snapshot is touched.
+    import io
+    from . import threemf
+    for f in (*carried, *(p for d in carried_dirs for p in d.iterdir() if p.is_file())):
+        if f.suffix.lower() == ".3mf":
+            try:
+                threemf.scrub(f, io.BytesIO())
+            except threemf.UnsupportedProject as exc:
+                raise SystemExit(f"\n{exc}")
 
     _hr(f"{'refreshing' if dst.exists() else 'about to publish'} "
         f"{args.name} → examples/{args.name}")
@@ -1000,6 +1021,8 @@ def cmd_promote(args) -> int:
     print("accepted mesh's timestamped filename, and ACCEPTED.md's date field.")
     print("Images lose their metadata — capture time, camera make, model and")
     print("serial number, GPS, editing software — with the pixels copied untouched.")
+    print("Render sheets lose their timestamp banner; slicer projects lose their")
+    print("dates, account ID and any print-host credentials.")
     print("notes.md and prints.md still carry measurements and dead ends —")
     print("that is what makes a published part worth reading. Check them.")
     if not args.yes:
