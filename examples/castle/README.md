@@ -53,7 +53,7 @@ Puck orientation is worth treating as a real variable rather than a fiddle, and 
 
 [`owners-manual.pdf`](owners-manual.pdf) is the booklet that goes in the box: a 1950s appliance manual for the "Mark II Vampire Castle", written entirely straight. It covers the care and feeding of the resident bat, why the drawbridge is fixed open, filling the moat with jelly beans, and repelling intruders from the crenellations without boiling oil (the stone softens at 140 °F).
 
-The practical parts are real: where the six tea lights go and which ones take sleeves, how to change their CR2032 cells, how to replace a paper diffuser, and the full-size diffuser templates on the last page. Print that page at 100%.
+The practical parts are real: where the six tea lights go and which ones take sleeves, how to change their CR2032 cells, how to replace a paper diffuser, the full-size diffuser templates on page 26 (print that page at 100%), and a service record for logging battery changes. The back cover gives the Works' address, such as it is.
 
 ## Making it your own
 
