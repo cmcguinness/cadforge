@@ -49,6 +49,12 @@ The paper is genuinely optional. The design assumed it was load-bearing — a ba
 
 Puck orientation is worth treating as a real variable rather than a fiddle, and nothing in this repo models it — see [`owl`](../owl/) and [`mini_castle`](../mini_castle/), both of which ended up sideways at the bench for the same reason.
 
+## The owner's manual
+
+[`owners-manual.pdf`](owners-manual.pdf) is the booklet that goes in the box: a 1950s appliance manual for the "Mark II Vampire Castle", written entirely straight. It covers the care and feeding of the resident bat, why the drawbridge is fixed open, filling the moat with jelly beans, and repelling intruders from the crenellations without boiling oil (the stone softens at 140 °F).
+
+The practical parts are real: where the six tea lights go and which ones take sleeves, how to change their CR2032 cells, how to replace a paper diffuser, and the full-size diffuser templates on the last page. Print that page at 100%.
+
 ## Making it your own
 
 The most transferable thing here is not a technique, it is a habit:
