@@ -22,7 +22,7 @@ numpy-stl==4.0.0
 # one file makes `pip install -r requirements.txt` fail outright with
 # ResolutionImpossible — a worse outcome than the advisories. Read that file
 # before installing the viewer.
-pillow==12.3.0
+pillow==13.0.0
 
 # reportlab: the paper-diffuser cutting templates are printed and cut out, so
 # they have to come off the printer at true scale. SVG through a browser gets
